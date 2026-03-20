@@ -1,0 +1,43 @@
+services:
+  frontend_server:
+    build:
+      args:
+        - BACKEND_API=${BACKEND_API}
+    extends:
+      file: compose.yaml
+      service: frontend_server
+
+  backend_server:
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - ADDRESS=${ADDRESS}
+      - PORT=3000
+    extends:
+      file: compose.yaml
+      service: backend_server
+
+  mysql_server:
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    volumes:
+      - test_project_mysql_volume:/var/lib/mysql
+    extends:
+      file: compose.yaml
+      service: mysql_server
+
+  reverse_proxy:
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/conf.d:ro
+      - /etc/letsencrypt/live/vvsitnic.space/:/etc/nginx/conf.d:ro
+    ports:
+      - 80:80
+      - 443:443
+    extends:
+      file: compose.yaml
+      service: reverse_proxy

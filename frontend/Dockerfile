@@ -5,7 +5,6 @@ COPY . .
 RUN npm install && \
     npm run build
 
-# FROM node:24-alpine
 FROM node:24
 EXPOSE 5000
 WORKDIR /app

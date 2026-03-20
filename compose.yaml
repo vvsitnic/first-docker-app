@@ -3,44 +3,26 @@ services:
     image: test_frontend
     build:
       context: ./frontend
-      args:
-        - BACKEND_API=http://127.0.0.1/api
-    ports:
-      - 5000:5000
     container_name: frontend
 
   backend_server:
     image: test_backend
     build: ./backend
-    ports:
-      - 3000:3000
-    environment:
-      - MYSQL_HOST=mysql_server
-      - MYSQL_PASSWORD=password
-      - MYSQL_USER=test_user_passwordfree
-      - MYSQL_DATABASE=test_db
-
     container_name: backend
     depends_on:
       - mysql_server
 
   mysql_server:
     image: mysql
-    restart: unless-stopped
-    environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=1
-      - MYSQL_PASSWORD=password
-      - MYSQL_USER=test_user_passwordfree
-      - MYSQL_DATABASE=test_db
+    volumes:
+      - mysql_data:/var/lib/mysql
     container_name: mysql
 
   reverse_proxy:
     image: nginx
-    restart: unless-stopped
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - 80:80
     depends_on:
       - backend_server
       - frontend_server
+
+volumes:
+  mysql_data:
